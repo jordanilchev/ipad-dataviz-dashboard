@@ -1,67 +1,119 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-    <head>
-        <title></title>
-        <meta charset="utf-8" />
-        <script src="cordova.js"></script>
-        <script src="kendo/js/jquery.min.js"></script>
-        <script src="kendo/js/kendo.mobile.min.js"></script>
-        <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+	<head>
+		<title></title>
+		<meta charset="utf-8" />
+		<script src="cordova.js"></script>
+		<script src="kendo/js/jquery.min.js"></script>
         <script src="scripts/hello-world.js"></script>
-
-        <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+        <script src="http://cdn.kendostatic.com/2012.2.913/js/kendo.all.min.js"></script>
+        
+        <link href="http://cdn.kendostatic.com/2012.2.913/styles/kendo.mobile.all.min.css" rel="stylesheet" type="text/css" />
+        <link href="http://cdn.kendostatic.com/2012.2.913/styles/kendo.common.min.css" rel="stylesheet" type="text/css" />
+        <link href="http://cdn.kendostatic.com/2012.2.913/styles/kendo.default.min.css" rel="stylesheet" type="text/css" />
+        <link href="http://cdn.kendostatic.com/2012.2.913/styles/kendo.dataviz.min.css" rel="stylesheet" type="text/css" />
         <link href="styles/main.css" rel="stylesheet" />
-    </head>
-    <body>
-        <div data-role="view" id="tabstrip-home" data-title="Hello World!">
-            <h1>Welcome!</h1>
-            <p>
-                Icenium&trade; enables you to build cross-platform device applications regardless of your 
-                development platform by combining the convenience of a local development toolset with the 
-                power and flexibility of the cloud.
-            </p>
-        </div>
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans+Condensed:700,300" rel="stylesheet" />
+        
+	</head>
+	<body>
+		<div data-role="view" id="tabstrip-home" title="Stock History">
+			<div class="demo-section">
+				<h3 class="example-title">
+					Stock<span>History</span>
+				</h3>
+				<h4 class="example-description">Kendo UI Data Visualization Project</h4>
 
-        <div data-role="view" id="tabstrip-uiinteraction" data-title="UI Interaction">
-            <h1>Say Hello!</h1>
-            <div id='helloWorldInput'>
-                <label for="txtName" style="display: inline-block;">Enter your name:</label>
-                <input type="text" id="txtName" value="" />
-            </div>
-            <div id='helloWorldText' style="display:block;"></div>
-            <div class="buttonArea">
-                <a id="resetButton" data-role="button" data-click="sayHelloReset" data-icon="refresh">Reset</a>
-                <a id="submitButton" data-role="button" data-click="sayHello" data-icon="compose">Submit</a>
-            </div>
-        </div>
+				<div id="year-filtering-tabs" class="filtering-tabs"></div>
 
-        <div data-role="view" id="tabstrip-geolocation" data-title="Geolocation">
-            <h1>My Location</h1>
-            <div id="geoLocationContainer">
-                <div id="myLocation">Unable to get location information. Please check your network connection and try again.</div>
-                <a id="refreshMap" data-role="button" data-click="getLocation" data-icon="refresh">Refresh Location</a>
-                <div id="map_canvas"></div>
-            </div>
-        </div>
+				<h5 class="example-subtitle">Closing stock prices</h5>
+				<span class="metric">throughout <span class="selected-year"></span></span>
 
-        <div data-role="layout" data-id="mobile-tabstrip">
-            <header data-role="header">
-                <div data-role="navbar">
-                    <span data-role="view-title"></span>
-                </div>
-            </header>
+				<div id="chart-type-chooser">
+					<strong class="example-subtitle radio-group-label">Chart type</strong>
 
-            <div data-role="footer">
-                <div data-role="tabstrip">
-                    <a href="#tabstrip-home" data-icon="home">Home</a>
-                    <a href="#tabstrip-uiinteraction" data-icon="share">UI Interaction</a>
-                    <a href="#tabstrip-geolocation" data-icon="globe">Geolocation</a>
-                </div>
-            </div>
-        </div>
+					<ul class="radio-group">
+						<li>
+							<input type="radio" name="chart-type" value="area" id="chart-type-area" checked>
+							<label for="chart-type-area">Area</label>
+						</li>
+						<li>
+							<input type="radio" name="chart-type" value="line" id="chart-type-line">
+							<label for="chart-type-line">Line</label>
+						</li>
+					</ul>
+				</div>
 
-        <script>
-            var app = new kendo.mobile.Application(document.body, { transition: "slide", layout: "mobile-tabstrip" });
-        </script>
-    </body>
+				<div id="yearly-stock-prices"></div>
+
+				<script type="text/x-kendo-template" id="company-info-template">
+					<dl class="stat first">
+					<dt class="example-subtitle">
+					#= name # stock price
+					<span class="metric">US dollars</span>
+					</dt>
+					<dd class="eoy-closing"></dd>
+					</dl>
+
+					<div class="company-trends">
+					<div class="example-subtitle">
+					Stock market trends
+					<span class="metric">throughout the year</span>
+					</div>
+
+					<dl class="stat trend-container highest-container">
+					<dt class="example-subtitle">Highest stock price</dt>
+					<dd class="highest"></dd>
+					<dd class="sparkline highest-sparkline"></dd>
+					</dl>
+
+					<dl class="stat trend-container lowest-container">
+					<dt class="example-subtitle">Lowest stock price</dt>
+					<dd class="lowest"></dd>
+					<dd class="sparkline lowest-sparkline"></dd>
+					</dl>
+
+					<dl class="stat trend-container">
+					<dt class="example-subtitle">YoY change</dt>
+					<dd class="relative-value"></dd>
+					<dd class="sparkline relative-value-sparkline"></dd>
+					</dl>
+
+					<div class="relative-value-pie"></div>
+					</div>
+
+					<div class="separator"></div>
+
+					<dl class="stat first">
+					<dt class="example-subtitle">
+					volume of traded stocks
+					<span class="metric">traded stocks</span>
+					</dt>
+					<dd class="volume"></dd>
+					</dl>
+
+					<div class="volume-chart"></div>
+				</script>
+
+				<div id="company-filtering-tabs" class="filtering-tabs"></div>
+
+				<div class="company-info" id="google"></div>
+			</div>
+
+		</div>
+
+		<div data-role="layout" data-id="mobile-tabstrip">
+	
+			<div data-role="footer">
+				<div data-role="tabstrip">
+					<a href="#tabstrip-home" data-icon="home">Home</a>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			var app = new kendo.mobile.Application(document.body, { transition: "slide", layout: "mobile-tabstrip" });
+		</script>
+	
+	</body>
 </html>
