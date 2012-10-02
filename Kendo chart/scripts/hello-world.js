@@ -8,7 +8,7 @@ function onDeviceReady() {
 	setup();
 }
 
-function setup() {
+function setup() { 
 	var selectedYear = 2011;
 
 	var stocksDataSource = new kendo.data.DataSource({
